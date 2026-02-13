@@ -48,8 +48,6 @@ Feel free to reach out if you are interested in potential collaboration!
 
  - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">EuroSys 2025</span> Shulai Zhang, Quan Chen, Weihao Cui, Han Zhao, **Chunyu Xue**, Zhen Zheng, Wei Lin, Minyi Guo. "Improving GPU Sharing Performance through Adaptive Bubbleless Spatial-Temporal Sharing".
 
- - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">EuroSys 2025</span> Shulai Zhang, Quan Chen, Weihao Cui, Han Zhao, **Chunyu Xue**, Zhen Zheng, Wei Lin, Minyi Guo. "Improving GPU Sharing Performance through Adaptive Bubbleless Spatial-Temporal Sharing".
-
  - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">TACO 2025</span> Pengyu Yang, Weihao Cui, **Chunyu Xue**, Han Zhao, Chen Chen, Quan Chen, Jing Yang, Minyi Guo. "Taming Flexible Job Packing in Deep Learning Training Clusters".
 
 ## Preprint
