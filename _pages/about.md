@@ -30,9 +30,11 @@ Feel free to reach out if you are interested in potential collaboration!
 
 # Experiences
 
- - *2025.03 - Now*, ByteDance Seed `Research Intern in Training Infra`
- - *2021.06 - 2021.09*, Microsoft `Software Engineer Intern in Cloud+AI`
+ - *2025.03 - Now*, ByteDance Seed (Training Infrastructure) `Research Intern`
+ - *2021.06 - 2021.09*, Microsoft (Cloud+AI) `Software Engineer Intern`
 
 
 # Publications 
+
+
 
