@@ -36,5 +36,8 @@ Feel free to reach out if you are interested in potential collaboration!
 
 # Publications 
 
+## Published
+
+ - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">EuroSys 2026</span> Chunyu Xue, 
 
 
