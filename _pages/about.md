@@ -47,11 +47,11 @@ Feel free to reach out if you are interested in potential collaboration!
 
  - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">NSDI 2026</span> **Chunyu Xue**, Yi Pan, Weihao Cui, Quan Chen, Shulai Zhang, Bingsheng He, Minyi Guo. "MuxTune: Efficient Multi-Task LLM Fine-Tuning in Multi-Tenant Datacenters via Spatial-Temporal Backbone Multiplexing". [[Paper]](https://www.usenix.org/conference/nsdi26/presentation/xue-chunyu) [[Code]](https://github.com/sjtu-epcc/muxtune)
 
- - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">EuroSys 2026</span> Yuxuan Wang, Yanbo Wang, Chen Chen, **Chunyu Xue**, Qizhen Weng, Yin Chen, Zeren Li, Xuqi Zhu, Yongqiang Yang, Quan Chen, Minyi Guo. "Suika: Efficient and High-quality Re-scheduling of 3D-parallelized LLM Training Jobs in Shared Clusters".
+ - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">EuroSys 2026</span> Yuxuan Wang, Yanbo Wang, Chen Chen, **Chunyu Xue**, Qizhen Weng, Yin Chen, Zeren Li, Xuqi Zhu, Yongqiang Yang, Quan Chen, Minyi Guo. "Suika: Efficient and High-quality Re-scheduling of 3D-parallelized LLM Training Jobs in Shared Clusters". [[Paper]]()
 
- - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">EuroSys 2025</span> Shulai Zhang, Quan Chen, Weihao Cui, Han Zhao, **Chunyu Xue**, Zhen Zheng, Wei Lin, Minyi Guo. "Improving GPU Sharing Performance through Adaptive Bubbleless Spatial-Temporal Sharing".
+ - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">EuroSys 2025</span> Shulai Zhang, Quan Chen, Weihao Cui, Han Zhao, **Chunyu Xue**, Zhen Zheng, Wei Lin, Minyi Guo. "Improving GPU Sharing Performance through Adaptive Bubbleless Spatial-Temporal Sharing". [[Paper]](https://dl.acm.org/doi/abs/10.1145/3689031.3696070)
 
- - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">TACO 2025</span> Pengyu Yang, Weihao Cui, **Chunyu Xue**, Han Zhao, Chen Chen, Quan Chen, Jing Yang, Minyi Guo. "Taming Flexible Job Packing in Deep Learning Training Clusters".
+ - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">TACO 2025</span> Pengyu Yang, Weihao Cui, **Chunyu Xue**, Han Zhao, Chen Chen, Quan Chen, Jing Yang, Minyi Guo. "Taming Flexible Job Packing in Deep Learning Training Clusters". [[Paper]](https://dl.acm.org/doi/10.1145/3711927)
 
 ## Preprint
 
