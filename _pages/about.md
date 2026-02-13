@@ -21,18 +21,21 @@ I'm Chunyu Xue, a fourth-year Direct PhD Candidate in [Emerging Parallel Computi
 Currently, I'm working as a research intern in [ByteDance Seed](https://seed.bytedance.com/en/) (Training Infrastructure). I worked as an engineering intern in Microsoft Cloud+AI. I received my B.S. in Computer Science and Technology from SJTU.
 Feel free to reach out if you are interested in potential collaboration!
 
+<span class='anchor' id='-education'></span>
 
 # Education
 
  - *2022.09 - Now*, Shanghai Jiao Tong University `Ph.D. in Computer Science`
  - *2018.09 - 2022.06*, Shanghai Jiao Tong University `B.S. in Computer Science`
 
+<span class='anchor' id='-experiences'></span>
 
 # Experiences
 
  - *2025.03 - Now*, ByteDance Seed (Training Infrastructure) `Research Intern`
  - *2021.06 - 2021.09*, Microsoft (Cloud+AI) `Software Engineer Intern`
 
+<span class='anchor' id='-publications'></span>
 
 # Publications 
 
@@ -51,6 +54,11 @@ Feel free to reach out if you are interested in potential collaboration!
  - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">TACO 2025</span> Pengyu Yang, Weihao Cui, **Chunyu Xue**, Han Zhao, Chen Chen, Quan Chen, Jing Yang, Minyi Guo. "Taming Flexible Job Packing in Deep Learning Training Clusters".
 
 ## Preprint
+
+<span class='anchor' id='-projects'></span>
+
+# Projects
+
 
 
 
