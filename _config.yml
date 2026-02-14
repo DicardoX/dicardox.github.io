@@ -6,6 +6,7 @@
 # `jekyll serve`. If you change this file, please restart the server process.
 
 # Site Settings
+og_image                 : "images/favicon-32x32.png"
 title                    : "Chunyu Xue - Homepage"
 description              : 
 repository               : "DicardoX/dicardox.github.io"
@@ -23,7 +24,6 @@ baidu_site_verification  :  # get baidu_site_verification from https://ziyuan.ba
 author:
   name             : "Chunyu Xue"
   avatar           : "images/android-chrome-512x512.png"
-  og_image         : "images/favicon-32x32.png"
   bio              : "dicardo [at] sjtu.edu.cn"
   location         : "Shanghai, China"
   employer         :
