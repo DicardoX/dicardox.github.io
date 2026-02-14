@@ -18,7 +18,7 @@ redirect_from:
 <span class='anchor' id='about-me'></span>
 
 I'm Chunyu Xue, a fourth-year Direct PhD Candidate in [Emerging Parallel Computing Center (EPCC)](http://epcc.sjtu.edu.cn) from [Shanghai Jiao Tong University (SJTU)](https://www.sjtu.edu.cn), advised by [Prof. Quan Chen](https://www.cs.sjtu.edu.cn/~chen-quan/index_EN.html). My research interests lie in building efficient and scalable systems for LLM and MultiModal training, fine-tuning, and cluster-level scheduling. 
-Currently, I'm working as a research intern in [ByteDance Seed](https://seed.bytedance.com/en/) (Training Infrastructure). I worked as an engineering intern in Microsoft Cloud+AI. I received my B.S. in Computer Science and Technology from SJTU.
+Currently, I'm working as a research intern in [ByteDance Seed](https://seed.bytedance.com/en/) (Training Infrastructure). I worked as an engineering intern in [Microsoft Cloud+AI](https://www.microsoft.com/en-us/aprd/aboutus/team-cai). I received my B.S. in Computer Science and Technology from SJTU.
 Feel free to reach out if you are interested in potential collaboration!
 
 <span class='anchor' id='-education'></span>
