@@ -39,9 +39,9 @@ Feel free to reach out if you are interested in potential collaboration!
 
 # Publications 
 
-## Published
+**NOTE**: <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">  </span>: &nbsp; `CCF-A conference paper,` <span style="background-color: #D19A9A; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">  </span>: &nbsp; `CCF-A journal paper. `
 
-<span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">   </span> &nbsp; `for CCF-A conference paper,` <span style="background-color: #D19A9A; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">   </span> &nbsp; `for CCF-A journal paper. `
+## Published
 
  - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">EuroSys 2026</span> **Chunyu Xue**, Weihao Cui, Quan Chen, Chen Chen, Han Zhao, Shulai Zhang, Linmei Wang, Yan Li, Limin Xiao, WeiFeng Zhang, Jing Yang, Bingsheng He, Minyi Guo. "Arena: Efficiently Training Large Models via Dynamic Scheduling and Adaptive Parallelism Co-Design". [[Paper]]() [[Code]](https://github.com/sjtu-epcc/arena)
 
