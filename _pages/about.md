@@ -41,7 +41,7 @@ Feel free to reach out if you are interested in potential collaboration!
 
 ## Published
 
-<span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">   </span> &nbsp; for CCF-A conference paper, <span style="background-color: #5581B0; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">   </span> &nbsp; for CCF-A journal paper. 
+<span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">   </span> &nbsp; for CCF-A conference paper, <span style="background-color: #D19A9A; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">   </span> &nbsp; for CCF-A journal paper. 
 
  - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">EuroSys 2026</span> **Chunyu Xue**, Weihao Cui, Quan Chen, Chen Chen, Han Zhao, Shulai Zhang, Linmei Wang, Yan Li, Limin Xiao, WeiFeng Zhang, Jing Yang, Bingsheng He, Minyi Guo. "Arena: Efficiently Training Large Models via Dynamic Scheduling and Adaptive Parallelism Co-Design". [[Paper]]() [[Code]](https://github.com/sjtu-epcc/arena)
 
@@ -53,7 +53,7 @@ Feel free to reach out if you are interested in potential collaboration!
 
  - <span style="background-color: #B16A6F; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">EuroSys 2025</span> Shulai Zhang, Quan Chen, Weihao Cui, Han Zhao, **Chunyu Xue**, Zhen Zheng, Wei Lin, Minyi Guo. "Improving GPU Sharing Performance through Adaptive Bubbleless Spatial-Temporal Sharing". [[Paper]](https://dl.acm.org/doi/abs/10.1145/3689031.3696070)
 
- - <span style="background-color: #5581B0; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">TACO 2025</span> Pengyu Yang, Weihao Cui, **Chunyu Xue**, Han Zhao, Chen Chen, Quan Chen, Jing Yang, Minyi Guo. "Taming Flexible Job Packing in Deep Learning Training Clusters". [[Paper]](https://dl.acm.org/doi/10.1145/3711927)
+ - <span style="background-color: #D19A9A; color: white; padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.9em;">TACO 2025</span> Pengyu Yang, Weihao Cui, **Chunyu Xue**, Han Zhao, Chen Chen, Quan Chen, Jing Yang, Minyi Guo. "Taming Flexible Job Packing in Deep Learning Training Clusters". [[Paper]](https://dl.acm.org/doi/10.1145/3711927)
 
 ## Preprint
 
