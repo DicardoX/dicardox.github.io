@@ -26,7 +26,7 @@ Feel free to reach out if you are interested in potential collaboration!
 # Education
 
  - *2022.09 - Now*, Shanghai Jiao Tong University `Ph.D. in Computer Science`
- - *2018.09 - 2022.06*, Shanghai Jiao Tong University `B.S. in Computer Science`
+ - *2018.09 - 2022.06*, Shanghai Jiao Tong University `B.S. in Computer Science (Zhiyuan Honors Program)`
 
 <span class='anchor' id='-experiences'></span>
 
