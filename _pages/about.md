@@ -24,8 +24,8 @@ Feel free to reach out if you are interested in potential collaboration!
 # 🔥 News
 
 - *2026.05*, Glad to join Moonshot (Kimi) RL Infra team as a research intern 🥳, solving ambitious moonshot problems together that will lead humanity to AGI! Had a wonderful experience in Seed team~
-- *2026.05*, Will give a talk at NSDI'26, Renton, WA USA.
-- *2026.04*, Will give two talks at EuroSys'26, Edinburgh, Scoland UK.
+- *2026.05*, Give a talk at NSDI'26, Renton, WA USA.
+- *2026.04*, Give two talks at EuroSys'26, Edinburgh, Scoland UK.
 - *2026.01*, Three papers ([Arena](), [MegaScale-Omni](), and [Suika]()) are accepted by EuroSys'26!
 - *2025.12*, [MuxTune](https://www.usenix.org/conference/nsdi26/presentation/xue-chunyu) is accepted by NSDI'26!
 - *2025.10*, Serve as a reviewer for Concurrency and Computation: Practice and Experience.
