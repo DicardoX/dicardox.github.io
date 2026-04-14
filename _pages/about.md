@@ -17,29 +17,37 @@ redirect_from:
 
 <span class='anchor' id='about-me'></span>
 
-I'm Chunyu Xue (薛春宇), a fourth-year PhD student in [Emerging Parallel Computing Center (EPCC)](http://epcc.sjtu.edu.cn) from [Shanghai Jiao Tong University (SJTU)](https://www.sjtu.edu.cn), advised by [Prof. Quan Chen](https://www.cs.sjtu.edu.cn/~chen-quan/index_EN.html). My research interests lie in building efficient and scalable systems for LLM and MultiModal training, fine-tuning, and cluster-level scheduling. 
-Currently, I'm working as a research intern in [ByteDance Seed](https://seed.bytedance.com/en/) (Training Infrastructure). I worked as an engineering intern in [Microsoft Cloud+AI](https://www.microsoft.com/en-us/aprd/aboutus/team-cai). I received my B.S. in Computer Science and Technology from SJTU.
+I'm Chunyu Xue (薛春宇), a fourth-year PhD student in [Emerging Parallel Computing Center (EPCC)](http://epcc.sjtu.edu.cn) from [Shanghai Jiao Tong University (SJTU)](https://www.sjtu.edu.cn), advised by [Prof. Quan Chen](https://www.cs.sjtu.edu.cn/~chen-quan/index_EN.html). My research interests lie in building efficient and scalable systems for LLM and MultiModal training, fine-tuning, post-training, and cluster-level scheduling. 
+Currently, I'm working as a research intern in [Moonshot AI (Kimi)](https://www.moonshot.ai) (RL Infrastructure). I worked as a research intern in [ByteDance Seed](https://seed.bytedance.com/en/) (Training Infrastructure). I worked as an engineering intern in [Microsoft Cloud+AI](https://www.microsoft.com/en-us/aprd/aboutus/team-cai). I received my B.S. in Computer Science and Technology from SJTU.
 Feel free to reach out if you are interested in potential collaboration!
 
-# 🔥News
+# 🔥 News
+
+- *2026.05*, Glad to join Moonshot (Kimi) RL Infra team as a research intern 🥳, had a wonderful experience in Seed team~
+- *2026.05*, Will given one talk at NSDI'26, Renton, WA USA.
+- *2026.04*, Will give two talks at EuroSys'26, Edinburgh, Scoland UK.
+- *2026.01*, Three papers have been accepted by EuroSys'26!
+- *2025.12*, One paper has been accepted by NSDI'26!
+- *2025.03*, Glad to join Seed Training Infra team as a research intern 🥳, pushing the boundaries of AI together!
 
 <span class='anchor' id='-education'></span>
 
-# 🎓Education
+# 🎓 Education
 
  - *2022.09 - Now*, Shanghai Jiao Tong University `Ph.D. in Computer Science`
  - *2018.09 - 2022.06*, Shanghai Jiao Tong University `B.S. in Computer Science (Zhiyuan Honors Program)`
 
 <span class='anchor' id='-experiences'></span>
 
-# 💼Experiences
+# 💼 Experiences
 
- - *2025.03 - Now*, ByteDance Seed (Training Infrastructure) `Research Intern`
+ - *2026.05 - Now*, Moonshot AI (Kimi) (RL Infrastructure) `Research Intern`
+ - *2025.03 - 2026.05*, ByteDance Seed (Training Infrastructure) `Research Intern`
  - *2021.06 - 2021.09*, Microsoft (Cloud+AI) `Software Engineer Intern`
 
 <span class='anchor' id='-publications'></span>
 
-# 📖Publications 
+# 📖 Publications 
 
 ## Published
 
@@ -59,13 +67,13 @@ Feel free to reach out if you are interested in potential collaboration!
 
 <span class='anchor' id='-projects'></span>
 
-# 🔨Projects
+# 🔨 Projects
 
  - *2024.12 - Now*, Eﬀicient and Elastic Training System for Large Models, Lenovo.
 
 <span class='anchor' id='-awards'></span>
 
-# 🎉Awards
+# 🎉 Awards
 
  - Outstanding Graduate of Shanghai Jiao Tong University, *2022.06* 
  - Zhiyuan Honors Degree, Shanghai Jiao Tong University, *2022.06* 
