@@ -23,7 +23,7 @@ Feel free to reach out if you are interested in potential collaboration!
 
 # 🔥 News
 
-- *2026.05*, Glad to join Moonshot (Kimi) RL Infra team as a research intern 🥳, had a wonderful experience in Seed team~
+- *2026.05*, Glad to join Moonshot (Kimi) RL Infra team as a research intern 🥳, solving ambitious moonshot problems together that will lead humanity to AGI. Had a wonderful experience in Seed team~
 - *2026.05*, Will given one talk at NSDI'26, Renton, WA USA.
 - *2026.04*, Will give two talks at EuroSys'26, Edinburgh, Scoland UK.
 - *2026.01*, Three papers have been accepted by EuroSys'26!
