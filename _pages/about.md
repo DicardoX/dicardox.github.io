@@ -62,5 +62,12 @@ Feel free to reach out if you are interested in potential collaboration!
  - *2024.12 - Now*, Eﬀicient and Elastic Training System for Large Models, Lenovo.
 
 
+<span class='anchor' id='-awards'></span>
 
+# Awards
 
+ - Outstanding Graduate of Shanghai Jiao Tong University, *2022.06* 
+ - Zhiyuan Honors Degree, Shanghai Jiao Tong University, *2022.06* 
+ - SJTU Undergraduate Excellence Scholarship, *2019-2022*
+ - SJTU Zhiyuan Honors Scholarship, *2018-2022*
+ - SJTU Xiaomi Scholarship, *2021.12*
