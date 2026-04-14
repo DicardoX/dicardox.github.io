@@ -21,23 +21,25 @@ I'm Chunyu Xue (薛春宇), a fourth-year PhD student in [Emerging Parallel Comp
 Currently, I'm working as a research intern in [ByteDance Seed](https://seed.bytedance.com/en/) (Training Infrastructure). I worked as an engineering intern in [Microsoft Cloud+AI](https://www.microsoft.com/en-us/aprd/aboutus/team-cai). I received my B.S. in Computer Science and Technology from SJTU.
 Feel free to reach out if you are interested in potential collaboration!
 
+# 🔥News
+
 <span class='anchor' id='-education'></span>
 
-# Education
+# 🎓Education
 
  - *2022.09 - Now*, Shanghai Jiao Tong University `Ph.D. in Computer Science`
  - *2018.09 - 2022.06*, Shanghai Jiao Tong University `B.S. in Computer Science (Zhiyuan Honors Program)`
 
 <span class='anchor' id='-experiences'></span>
 
-# Experiences
+# 💼Experiences
 
  - *2025.03 - Now*, ByteDance Seed (Training Infrastructure) `Research Intern`
  - *2021.06 - 2021.09*, Microsoft (Cloud+AI) `Software Engineer Intern`
 
 <span class='anchor' id='-publications'></span>
 
-# Publications 
+# 📖Publications 
 
 ## Published
 
@@ -57,14 +59,13 @@ Feel free to reach out if you are interested in potential collaboration!
 
 <span class='anchor' id='-projects'></span>
 
-# Projects
+# 🔨Projects
 
  - *2024.12 - Now*, Eﬀicient and Elastic Training System for Large Models, Lenovo.
 
-
 <span class='anchor' id='-awards'></span>
 
-# Awards
+# 🎉Awards
 
  - Outstanding Graduate of Shanghai Jiao Tong University, *2022.06* 
  - Zhiyuan Honors Degree, Shanghai Jiao Tong University, *2022.06* 
