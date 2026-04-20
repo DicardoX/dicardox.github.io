@@ -70,7 +70,11 @@ Feel free to reach out if you are interested in potential collaboration!
 
 # 🔨 Projects
 
- - *2024.12 - Now*, Eﬀicient and Elastic Training System for Large Models, Lenovo.
+ - *2026.03 - Now*, ViT-USM Encoder Load Balancing and Dynamic Sequence Parallelism in Multimodal Pretraining, ByteDance Seed.
+ - *2025.12 - Now*, Eﬀicient Checkpoint-Restore Techniques for Large Model Elastic Training, Lenovo.
+ - *2024.12 - 2025.12*, Eﬀicient and Elastic Training System for Large Models, Lenovo.
+
+
 
 <span class='anchor' id='-awards'></span>
 
