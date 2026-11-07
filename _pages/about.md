@@ -24,6 +24,7 @@ Currently, I'm working as a research intern in [Moonshot AI (Kimi)](https://www.
 
 # 🔥 News
 
+- *2026.10*, Awarded National Scholarship for Doctoral Students!
 - *2026.05*, Glad to join Moonshot (Kimi) RL Infra team as a research intern 🥳, solving ambitious moonshot problems together that will lead humanity to AGI! Had a wonderful experience in Seed team~
 - *2026.05*, Give a talk at NSDI'26, Renton, WA USA.
 - *2026.04*, Give two talks at EuroSys'26, Edinburgh, Scoland UK.
