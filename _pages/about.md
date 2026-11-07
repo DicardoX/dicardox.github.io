@@ -83,6 +83,7 @@ Currently, I'm working as a research intern in [Moonshot AI (Kimi)](https://www.
 
 # 🎉 Awards
 
+ - National Scholarship for Doctoral Students, *2026.10*
  - Outstanding Graduate of Shanghai Jiao Tong University, *2022.06* 
  - Zhiyuan Honors Degree, Shanghai Jiao Tong University, *2022.06* 
  - SJTU Undergraduate Excellence Scholarship, *2019-2022*
