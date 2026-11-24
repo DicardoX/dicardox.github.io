@@ -129,6 +129,12 @@ defaults:
       author_profile: true
 
 
+# Collections
+collections:
+  memos:
+    output: false
+
+
 # Sass/SCSS
 sass:
   sass_dir: _sass

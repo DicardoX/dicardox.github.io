@@ -1,0 +1,82 @@
+---
+permalink: /memo/
+title: "Memo Cards"
+author_profile: false
+---
+
+<h1 id="memo-cards">🗒️ Memo Cards</h1>
+
+<p class="memo-sub">Lightweight knowledge notes. Each card is a Markdown file in the <code>_memos</code> folder of this site's repo — add or edit a file there (tag it with <code>#tag</code> in the text or a <code>tags: [...]</code> list in the front matter), push, and this page updates after the site rebuilds.</p>
+
+{% assign pairs = "" | split: "" %}
+{% for m in site.memos %}
+  {% assign u = m.updated | default: m.date %}
+  {% assign ukey = u | date: "%s" %}
+  {% assign pair = ukey | append: "|" | append: m.slug %}
+  {% assign pairs = pairs | push: pair %}
+{% endfor %}
+{% assign pairs = pairs | sort | reverse %}
+
+<div class="memo-app" id="memo-app">
+  <aside class="memo-app__sidebar">
+    <h2 class="memo-app__sidebar-title">Tags</h2>
+    <button type="button" class="memo-tag-filter is-active" id="memo-filter-all" data-tag="">All cards</button>
+    <div id="memo-tag-list"></div>
+  </aside>
+  <div class="memo-app__main">
+    {% if site.memos.size == 0 %}
+    <p class="memo-empty">No memo cards yet. Add a Markdown file to the <code>_memos</code> folder of the repo to create the first one.</p>
+    {% endif %}
+    <div class="memo-cards" id="memo-cards">
+{% for pair in pairs %}
+  {% assign slug = pair | split: "|" | last %}
+  {% assign m = site.memos | where: "slug", slug | first %}
+  {% assign u = m.updated | default: m.date %}
+  {% assign ufmt = u | date: "%Y-%m-%d %H:%M" %}
+  {% assign card_tags = "" | split: "" %}
+  {% assign card_tags_l = "" | split: "" %}
+  {% if m.tags %}
+    {% for t in m.tags %}
+      {% assign tl = t | downcase | strip %}
+      {% if tl != "" %}
+        {% unless card_tags_l contains tl %}
+          {% assign card_tags = card_tags | push: t %}
+          {% assign card_tags_l = card_tags_l | push: tl %}
+        {% endunless %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% capture memo_nl %}
+{% endcapture %}
+  {% assign words = m.content | replace: memo_nl, " " | replace: "<", " " | replace: ">", " " | split: " " %}
+  {% for w in words %}
+    {% assign w = w | strip %}
+    {% assign fw = w | slice: 0, 1 %}
+    {% if fw == "#" and w.size > 1 %}
+      {% assign t = w | remove_first: "#" | remove: "," | remove: "." | remove: ";" | remove: ":" | remove: "!" | remove: "?" | remove: ")" | remove: "]" | remove: "}" | remove: ">" | remove: "(" | remove: "[" | remove: "{" | remove: "<" | remove: '"' | remove: "'" | remove: "`" | remove: "*" | remove: "|" | remove: "&" %}
+      {% assign ft = t | slice: 0, 1 %}
+      {% assign tl = t | downcase %}
+      {% if tl != "" and ft != "#" %}
+        {% unless card_tags_l contains tl %}
+          {% assign card_tags = card_tags | push: t %}
+          {% assign card_tags_l = card_tags_l | push: tl %}
+        {% endunless %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+      <article class="memo-card" data-tags="{{ card_tags_l | join: '||' | escape }}">
+        <header class="memo-card__header">
+          <div class="memo-card__tags">{% for t in card_tags %}<button type="button" class="memo-chip" data-tag="{{ t | downcase | escape }}">#{{ t | escape }}</button>{% endfor %}</div>
+          <span class="memo-card__time" title="Last updated">Updated {{ ufmt }}</span>
+        </header>
+        <div class="memo-card__body">
+{{ m.content | markdownify }}
+        </div>
+      </article>
+{% endfor %}
+    </div>
+    <p class="memo-empty" id="memo-empty" hidden>No cards match this tag filter.</p>
+  </div>
+</div>
+
+<script src="/assets/js/memo.js"></script>

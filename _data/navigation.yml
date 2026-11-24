@@ -17,3 +17,7 @@ main:
   
   - title: "Awards"
     url: "/#-awards"
+
+  - title: "Memo Cards"
+    url: "/memo/"
+    target: "_self"
