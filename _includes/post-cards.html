@@ -1,9 +1,13 @@
-{% comment %} Sort posts by updated (fallback: file date), newest first {% endcomment %}
+{% comment %} Sort posts by updated (fallback: date from the card directory name), newest first {% endcomment %}
 {% assign pairs = "" | split: "" %}
 {% for m in site.post %}
   {% assign u = m.updated | default: m.date %}
+  {% unless u %}
+    {% assign dseg = m.path | split: "/" %}
+    {% assign u = dseg[1] | slice: 0, 10 | append: " " | append: dseg[1] | slice: 11, 2 | append: ":" | append: dseg[1] | slice: 14, 2 %}
+  {% endunless %}
   {% assign ukey = u | date: "%s" %}
-  {% assign pair = ukey | append: "|" | append: m.slug %}
+  {% assign pair = ukey | append: "|" | append: m.path %}
   {% assign pairs = pairs | push: pair %}
 {% endfor %}
 {% assign pairs = pairs | sort | reverse %}
@@ -20,9 +24,13 @@
 {% assign U_counts = "" | split: "" %}
 {% assign min_u = "" %}
 {% for pair in pairs %}
-  {% assign slug = pair | split: "|" | last %}
-  {% assign m = site.post | where: "slug", slug | first %}
+  {% assign ppath = pair | split: "|" | last %}
+  {% assign m = site.post | where: "path", ppath | first %}
+  {% assign segs = m.path | split: "/" %}
   {% assign u = m.updated | default: m.date %}
+  {% unless u %}
+    {% assign u = segs[1] | slice: 0, 10 | append: " " | append: segs[1] | slice: 11, 2 | append: ":" | append: segs[1] | slice: 14, 2 %}
+  {% endunless %}
   {% assign ufmt = u | date: "%Y-%m-%d %H:%M" %}
   {% assign A_time = A_time | push: ufmt %}
   {% assign mt = m.title | default: "Untitled" %}
@@ -67,6 +75,12 @@
   {% capture chips_html %}{% for t in card_tags %}<button type="button" class="post-chip" data-tag="{{ t | downcase | escape }}">#{{ t | escape }}</button>{% endfor %}{% endcapture %}
   {% assign A_chips = A_chips | push: chips_html %}
   {% capture body_html %}{{ m.content | markdownify }}{% endcapture %}
+  {% comment %} Relative figure paths resolve against the card directory,
+      published at /post/<dir>/figures/ {% endcomment %}
+  {% if segs.size > 2 %}
+    {% capture fig_prefix %}src="/post/{{ segs[1] }}/figures/{% endcapture %}
+    {% assign body_html = body_html | replace: 'src="figures/', fig_prefix %}
+  {% endif %}
   {% assign A_body = A_body | push: body_html %}
   {% for i in (0..63) %}
     {% if i < card_tags_l.size %}
@@ -307,7 +321,16 @@
         </div>
       </div>
     </div>
-    <p class="post-modal__hint">Saved as a Markdown file in <code>_post/</code> via the GitHub API; the site rebuilds in about a minute.</p>
+    <div class="post-field">
+      <div class="post-field__labelrow">
+        <label>Figures</label>
+        <button type="button" class="post-preview-toggle" id="post-fig-upload">Upload</button>
+      </div>
+      <p class="post-figures__hint">After uploading, insert an image reference in the content as <code>![alt](figures/name.png)</code>.</p>
+      <div class="post-figures" id="post-figures"></div>
+      <input type="file" id="post-fig-input" accept="image/*" hidden>
+    </div>
+    <p class="post-modal__hint">Saved as <code>card.md</code> (with its <code>figures/</code>) in a <code>_post/</code> subdirectory via the GitHub API; the site rebuilds in about a minute.</p>
     <p class="post-modal__error" id="post-editor-error" hidden></p>
     <div class="post-modal__actions">
       <button type="button" class="post-btn" data-close>Cancel</button>

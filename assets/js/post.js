@@ -289,13 +289,13 @@
     var t = e.target;
     if (t && t.hasAttribute && t.hasAttribute('data-close')) {
       closeModal(loginModal);
-      closeModal(editorModal);
+      closeEditor();
     }
   });
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       closeModal(loginModal);
-      closeModal(editorModal);
+      closeEditor();
       closeAllMenus();
     }
   });
@@ -435,6 +435,10 @@
   function openEditor() {
     if (editing) { clearEditorFields(); }
     editing = null;
+    tempDir = null;
+    tempFigures = [];
+    figureData = {};
+    clearFiguresList();
     if (editorTitle) { editorTitle.textContent = 'New card'; }
     if (addBtn) { addBtn.textContent = 'Add card'; }
     var err = document.getElementById('post-editor-error');
@@ -508,9 +512,14 @@
     document.getElementById('post-new-body').value = parsed.body;
     var err = document.getElementById('post-editor-error');
     if (err) { err.hidden = true; }
+    tempDir = null;
+    tempFigures = [];
+    figureData = {};
+    clearFiguresList();
     setPreviewOpen(false);
     openModal(editorModal);
     document.getElementById('post-new-title').focus();
+    loadFigures();
   }
 
   function handleEdit(editBtn, card) {
@@ -559,6 +568,7 @@
     if (previewEl && bodyInput) {
       var v = bodyInput.value.trim();
       previewEl.innerHTML = v ? mdRender(v) : '<span class="post-editor__preview-empty">Nothing to preview</span>';
+      rewriteFigures(previewEl, editingDir());
       typesetMath(previewEl);
     }
   }
@@ -578,6 +588,318 @@
   if (bodyInput) {
     bodyInput.addEventListener('input', function () {
       if (previewOpen) { renderPreview(); }
+    });
+  }
+
+  /* ---------- Figures: each card lives in _post/<dir>/ (card.md + figures/) ----------
+     Images uploaded while creating a card go to a temporary directory
+     (_post/tmp_figures_<dir>) because the card directory only gets its final
+     name (time + title) when the card is saved. Saving moves the images into
+     the real figures/ folder; cancelling the editor deletes the temp files */
+
+  var figuresEl = document.getElementById('post-figures');
+  var figInput = document.getElementById('post-fig-input');
+  var figUploadBtn = document.getElementById('post-fig-upload');
+  var tempDir = null;      // '_post/tmp_figures_<dir>' while a new card has unsaved uploads
+  var tempFigures = [];    // [{ name, sha }] uploaded into tempDir this session
+  var figureData = {};     // 'figures/x.png' -> dataURL, for previews before Pages rebuilds
+  var MAX_IMG_BYTES = 5 * 1024 * 1024;
+
+  function editingDir() {
+    return editing ? editing.path.split('/')[1] : null;
+  }
+
+  // Point relative figure srcs at the published URL (or the just-uploaded
+  // dataURL while the site rebuild is pending)
+  function rewriteFigures(container, dir) {
+    if (!container) { return; }
+    var prefix = dir ? '/post/' + dir + '/' : null;
+    Array.prototype.forEach.call(container.querySelectorAll('img'), function (img) {
+      var src = img.getAttribute('src') || '';
+      if (src.indexOf('figures/') === 0) {
+        var mapped = figureData[src] || (prefix ? prefix + src : null);
+        if (mapped) { img.setAttribute('src', mapped); }
+      }
+    });
+  }
+
+  function clearFiguresList() {
+    if (figuresEl) { figuresEl.innerHTML = ''; }
+  }
+
+  var TRASH_SVG = '<svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" aria-hidden="true">'
+    + '<path d="M11 1.75V3h2.25a.75.75 0 0 1 0 1.5H2.75a.75.75 0 0 1 0-1.5H5V1.75C5 .784 5.784 0 6.75 0h2.5C10.216 0 11 .784 11 1.75ZM4.496 6.675l.66 6.6a.25.25 0 0 0 .249.225h5.19a.25.25 0 0 0 .249-.225l.66-6.6a.75.75 0 0 1 1.492.149l-.66 6.6A1.748 1.748 0 0 1 10.595 15h-5.19a1.748 1.748 0 0 1-1.741-1.576l-.66-6.6a.75.75 0 1 1 1.492-.149ZM6.5 1.75V3h3V1.75a.25.25 0 0 0-.25-.25h-2.5a.25.25 0 0 0-.25.25Z"/>'
+    + '</svg>';
+
+  function addFigureRow(rel, fullPath) {
+    if (!figuresEl) { return; }
+    var row = document.createElement('div');
+    row.className = 'post-figure';
+    row.setAttribute('data-rel', rel);
+    row.setAttribute('data-path', fullPath);
+    var pathEl = document.createElement('span');
+    pathEl.className = 'post-figure__path';
+    pathEl.textContent = fullPath;
+    pathEl.title = fullPath;
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.className = 'post-figure__delete';
+    del.setAttribute('aria-label', 'Delete figure');
+    del.title = 'Delete figure';
+    del.innerHTML = TRASH_SVG;
+    del.addEventListener('click', function () { deleteFigure(row, del); });
+    row.appendChild(pathEl);
+    row.appendChild(del);
+    figuresEl.appendChild(row);
+  }
+
+  function loadFigures() {
+    var token = getToken();
+    var dir = editingDir();
+    if (!token || !repo || !dir) { return; }
+    ghApi('GET', '/repos/' + repo + '/contents/_post/' + encodeURIComponent(dir) + '/figures', token)
+      .then(function (res) {
+        if (res.status === 404) { return []; }
+        if (!res.ok) { throw new Error('GitHub API error (' + res.status + ').'); }
+        return res.json();
+      })
+      .then(function (files) {
+        files.forEach(function (f) {
+          if (f.type === 'file') { addFigureRow('figures/' + f.name, f.path); }
+        });
+      })
+      .catch(function () { /* figure listing is best-effort */ });
+  }
+
+  function insertAtCursor(ta, text) {
+    if (!ta) { return; }
+    var s = ta.selectionStart != null ? ta.selectionStart : ta.value.length;
+    var e = ta.selectionEnd != null ? ta.selectionEnd : s;
+    ta.value = ta.value.slice(0, s) + text + ta.value.slice(e);
+    ta.selectionStart = ta.selectionEnd = s + text.length;
+    ta.focus();
+  }
+
+  function setUploadBusy(busy) {
+    if (figUploadBtn) {
+      figUploadBtn.disabled = busy;
+      figUploadBtn.textContent = busy ? 'Uploading…' : 'Upload';
+    }
+  }
+
+  function uploadFigure(file) {
+    var token = getToken();
+    if (!token) {
+      window.alert('Please sign in first (Admin Login on the left).');
+      return;
+    }
+    if (!/^image\//.test(file.type)) {
+      window.alert('Please choose an image file.');
+      return;
+    }
+    if (file.size > MAX_IMG_BYTES) {
+      window.alert('Image is too large (max 5 MB).');
+      return;
+    }
+    var now = new Date();
+    var stem = file.name.replace(/\.[a-z0-9]+$/i, '');
+    var extM = file.name.match(/\.([a-z0-9]+)$/i);
+    var ext = extM ? extM[1].toLowerCase() : 'png';
+    var name = pad2(now.getHours()) + pad2(now.getMinutes()) + pad2(now.getSeconds()) + '-' + slugify(stem) + '.' + ext;
+    var rel = 'figures/' + name;
+
+    // Existing card: upload straight into its figures/ folder. New card: the
+    // final directory name is only fixed at save time, so park the image in a
+    // temporary directory until then
+    var path;
+    if (editing) {
+      path = '_post/' + editingDir() + '/' + rel;
+    } else {
+      if (!tempDir) {
+        var t = document.getElementById('post-new-title').value.trim();
+        tempDir = '_post/tmp_figures_' + fmtDate(now) + '-' + pad2(now.getHours()) + '-' + pad2(now.getMinutes()) + '-' + slugify(t || 'card');
+      }
+      path = tempDir + '/' + name;
+    }
+
+    setUploadBusy(true);
+    var reader = new FileReader();
+    reader.onload = function () {
+      var dataUrl = reader.result;
+      ghApi('PUT', '/repos/' + repo + '/contents/' + encodeURI(path), token, {
+        message: 'Add figure: ' + name,
+        content: dataUrl.slice(dataUrl.indexOf(',') + 1)
+      })
+        .then(function (res) {
+          checkResponse(res);
+          return res.json();
+        })
+        .then(function (data) {
+          var sha = data && data.content && data.content.sha;
+          if (!editing && sha) { tempFigures.push({ name: name, sha: sha }); }
+          figureData[rel] = dataUrl;
+          addFigureRow(rel, path);
+          insertAtCursor(bodyInput, '![' + stem.replace(/[\[\]]/g, '') + '](' + rel + ')');
+          if (previewOpen) { renderPreview(); }
+        })
+        .catch(function (e) {
+          window.alert(e.message || 'Upload failed — please retry.');
+        })
+        .then(function () { setUploadBusy(false); });
+    };
+    reader.onerror = function () {
+      window.alert('Could not read the file.');
+      setUploadBusy(false);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function deleteFigure(row, btn) {
+    var rel = row.getAttribute('data-rel');
+    var path = row.getAttribute('data-path');
+    var token = getToken();
+    if (!token) {
+      window.alert('Please sign in first (Admin Login on the left).');
+      return;
+    }
+    if (!window.confirm('Delete ' + path + '?\nThe image reference in the content is not removed automatically.')) {
+      return;
+    }
+    btn.disabled = true;
+    var apiPath = '/repos/' + repo + '/contents/' + encodeURI(path);
+    ghApi('GET', apiPath, token)
+      .then(function (res) {
+        if (res.status === 404) { return null; }
+        if (!res.ok) { throw new Error('GitHub API error (' + res.status + ').'); }
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data) { return; }
+        return ghApi('DELETE', apiPath, token, {
+          message: 'Delete figure: ' + rel,
+          sha: data.sha
+        }).then(checkResponse);
+      })
+      .then(function () {
+        delete figureData[rel];
+        tempFigures = tempFigures.filter(function (f) { return ('figures/' + f.name) !== rel; });
+        if (row.parentNode) { row.parentNode.removeChild(row); }
+        if (previewOpen) { renderPreview(); }
+      })
+      .catch(function (e) {
+        window.alert(e.message || 'Network error — please retry.');
+        btn.disabled = false;
+      });
+  }
+
+  // Move the session's temp uploads into the saved card's figures/ folder
+  function moveTempFigures(dir, token) {
+    if (!tempDir || !tempFigures.length) { return Promise.resolve(); }
+    var fromDir = tempDir;
+    var moves = tempFigures.map(function (f) {
+      var cached = figureData['figures/' + f.name];
+      var contentP = cached
+        ? Promise.resolve(cached.slice(cached.indexOf(',') + 1))
+        : ghApi('GET', '/repos/' + repo + '/contents/' + encodeURI(fromDir + '/' + f.name), token)
+            .then(function (res) {
+              if (!res.ok) { throw new Error('GitHub API error (' + res.status + ').'); }
+              return res.json();
+            })
+            .then(function (data) { return data.content.replace(/\s/g, ''); });
+      return contentP
+        .then(function (b64) {
+          return ghApi('PUT', '/repos/' + repo + '/contents/' + encodeURI('_post/' + dir + '/figures/' + f.name), token, {
+            message: 'Add figure: ' + f.name,
+            content: b64
+          }).then(checkResponse);
+        })
+        .then(function () {
+          return ghApi('DELETE', '/repos/' + repo + '/contents/' + encodeURI(fromDir + '/' + f.name), token, {
+            message: 'Remove temp figure: ' + f.name,
+            sha: f.sha
+          }).then(checkResponse);
+        })
+        .then(function () {
+          tempFigures = tempFigures.filter(function (x) { return x.name !== f.name; });
+        });
+    });
+    return Promise.all(moves).then(function () {
+      tempDir = null;
+      tempFigures = [];
+    });
+  }
+
+  // Move every figure of a card to a renamed directory
+  function moveCardFigures(oldDir, newDir, token) {
+    var apiBase = '/repos/' + repo + '/contents/';
+    return ghApi('GET', apiBase + encodeURI('_post/' + oldDir + '/figures'), token)
+      .then(function (res) {
+        if (res.status === 404) { return []; }
+        if (!res.ok) { throw new Error('GitHub API error (' + res.status + ').'); }
+        return res.json();
+      })
+      .then(function (files) {
+        var chain = Promise.resolve();
+        files.forEach(function (f) {
+          chain = chain.then(function () {
+            return ghApi('GET', apiBase + encodeURI(f.path), token)
+              .then(function (res) {
+                if (!res.ok) { throw new Error('GitHub API error (' + res.status + ').'); }
+                return res.json();
+              })
+              .then(function (data) {
+                return ghApi('PUT', apiBase + encodeURI('_post/' + newDir + '/figures/' + f.name), token, {
+                  message: 'Move figure: ' + f.name,
+                  content: data.content.replace(/\s/g, '')
+                }).then(checkResponse);
+              })
+              .then(function () {
+                return ghApi('DELETE', apiBase + encodeURI(f.path), token, {
+                  message: 'Remove old figure: ' + f.name,
+                  sha: f.sha
+                }).then(checkResponse);
+              });
+          });
+        });
+        return chain;
+      });
+  }
+
+  // Best-effort cleanup when the editor is closed without saving
+  function cleanupTempFigures() {
+    if (!tempDir || !tempFigures.length) { return; }
+    var token = getToken();
+    var fromDir = tempDir;
+    var files = tempFigures;
+    tempDir = null;
+    tempFigures = [];
+    if (!token) { return; }
+    files.forEach(function (f) {
+      ghApi('DELETE', '/repos/' + repo + '/contents/' + encodeURI(fromDir + '/' + f.name), token, {
+        message: 'Delete temp figure: ' + f.name,
+        sha: f.sha
+      }).then(function () { /* best effort */ }, function () { /* best effort */ });
+    });
+  }
+
+  function closeEditor() {
+    cleanupTempFigures();
+    clearEditorFields();
+    closeModal(editorModal);
+  }
+
+  if (figUploadBtn && figInput) {
+    figUploadBtn.addEventListener('click', function () {
+      if (!getToken()) {
+        window.alert('Please sign in first (Admin Login on the left).');
+        return;
+      }
+      figInput.click();
+    });
+    figInput.addEventListener('change', function () {
+      var file = figInput.files && figInput.files[0];
+      figInput.value = '';
+      if (file) { uploadFigure(file); }
     });
   }
 
@@ -811,7 +1133,9 @@
       + '<div class="post-card__body">' + mdRender(opts.body) + '</div>';
 
     cardsEl.insertBefore(article, cardsEl.firstChild);
-    typesetMath(article.querySelector('.post-card__body'));
+    var newBodyEl = article.querySelector('.post-card__body');
+    rewriteFigures(newBodyEl, opts.dir);
+    typesetMath(newBodyEl);
     cards.push(article);
     cardTags.push(keys);
     cardText.push((opts.title + ' ' + keys.join(' ') + ' ' + opts.body).toLowerCase());
@@ -844,6 +1168,11 @@
     var oldKeys = i !== -1 ? cardTags[i] : [];
 
     card.setAttribute('data-tags', keys.join('||'));
+    if (opts.path) {
+      Array.prototype.forEach.call(card.querySelectorAll('[data-path]'), function (el) {
+        el.setAttribute('data-path', opts.path);
+      });
+    }
     var titleEl = card.querySelector('.post-card__title');
     if (titleEl) { titleEl.textContent = opts.title; }
     var timeEl = card.querySelector('.post-card__time');
@@ -872,6 +1201,7 @@
     var bodyEl = card.querySelector('.post-card__body');
     if (bodyEl) {
       bodyEl.innerHTML = mdRender(opts.body);
+      rewriteFigures(bodyEl, opts.dir);
       typesetMath(bodyEl);
     }
 
@@ -936,33 +1266,54 @@
       var timeText = fmtDate(now) + ' ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes());
 
       var req;
+      // Saving a title change renames the card directory: the creation
+      // timestamp prefix is kept, only the slug follows the new title
+      var oldDir = editing ? editingDir() : null;
+      var renamed = false;
+      var dir;
       if (editing) {
-        req = ghApi('PUT', '/repos/' + repo + '/contents/' + encodeURI(editing.path), token, {
-          message: 'Update post card: ' + title,
-          content: b64encode(lines.join('\n')),
-          sha: editing.sha
-        });
+        dir = oldDir;
+        var slug = slugify(title);
+        if (/^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-/.test(oldDir) && oldDir.slice(17) !== slug) {
+          dir = oldDir.slice(0, 17) + slug;
+          renamed = true;
+        }
       } else {
-        var filename = fmtDate(now) + '-' + pad2(now.getHours()) + '-' + pad2(now.getMinutes()) + '-' + slugify(title) + '.md';
-        req = ghApi('PUT', '/repos/' + repo + '/contents/_post/' + encodeURIComponent(filename), token, {
-          message: 'Add post card: ' + title,
-          content: b64encode(lines.join('\n'))
-        });
+        dir = fmtDate(now) + '-' + pad2(now.getHours()) + '-' + pad2(now.getMinutes()) + '-' + slugify(title);
       }
+      var cardPath = '_post/' + dir + '/card.md';
+      var putBody = {
+        message: (editing ? 'Update post card: ' : 'Add post card: ') + title,
+        content: b64encode(lines.join('\n'))
+      };
+      if (editing && !renamed) { putBody.sha = editing.sha; }
+      req = ghApi('PUT', '/repos/' + repo + '/contents/' + encodeURI(cardPath), token, putBody);
 
       req
         .then(checkResponse)
         .then(function () {
-          closeModal(editorModal);
+          if (!editing) { return moveTempFigures(dir, token); }
+          if (renamed) {
+            return moveCardFigures(oldDir, dir, token).then(function () {
+              return ghApi('DELETE', '/repos/' + repo + '/contents/' + encodeURI(editing.path), token, {
+                message: 'Remove old card: ' + title,
+                sha: editing.sha
+              }).then(checkResponse);
+            });
+          }
+        })
+        .then(function () {
+          closeEditor();
           if (editing) {
-            updateCard(editing.card, { title: title, tags: fmTags, body: body, timeText: timeText });
+            updateCard(editing.card, { title: title, tags: fmTags, body: body, timeText: timeText, dir: dir, path: cardPath });
             editing = null;
           } else {
             var r = prependCard({
               title: title,
               tags: fmTags,
               body: body,
-              path: '_post/' + filename,
+              path: cardPath,
+              dir: dir,
               timeText: timeText
             });
             adjustTagCounts(r.keys, 1, r.disp);
@@ -985,20 +1336,44 @@
     if (!path || !card) { return; }
     var titleEl = card.querySelector('.post-card__title');
     var title = titleEl ? titleEl.textContent : path;
-    var token = null;
-    try { token = localStorage.getItem(TOKEN_KEY); } catch (e) { /* ignore */ }
+    var token = getToken();
     if (!token) {
       window.alert('Please sign in first (Admin Login on the left).');
       return;
     }
-    if (!window.confirm('Delete "' + title + '"?\nThis removes ' + path + ' from the repo; the site rebuilds in about a minute.')) {
+    var segs = path.split('/');
+    var isDirCard = segs.length > 2;
+    if (!window.confirm('Delete "' + title + '"?\nThis removes ' + (isDirCard ? 'the whole _post/' + segs[1] + ' directory (card + figures)' : path) + ' from the repo; the site rebuilds in about a minute.')) {
       return;
     }
     delBtn.disabled = true;
     delBtn.textContent = 'Deleting…';
 
-    var apiPath = '/repos/' + repo + '/contents/' + encodeURI(path);
-    ghApi('GET', apiPath, token)
+    var apiBase = '/repos/' + repo + '/contents/';
+
+    // Directory cards: delete every figure first (the listing already carries
+    // each file's sha); the directory disappears once it is empty
+    var deleteFigures = isDirCard
+      ? ghApi('GET', apiBase + encodeURI('_post/' + segs[1] + '/figures'), token)
+          .then(function (res) {
+            if (res.status === 404) { return []; }
+            if (!res.ok) { throw new Error('GitHub API error (' + res.status + ').'); }
+            return res.json();
+          })
+          .then(function (files) {
+            return Promise.all(files.map(function (f) {
+              return ghApi('DELETE', apiBase + encodeURI(f.path), token, {
+                message: 'Delete figure: ' + f.name,
+                sha: f.sha
+              }).then(checkResponse);
+            }));
+          })
+      : Promise.resolve();
+
+    deleteFigures
+      .then(function () {
+        return ghApi('GET', apiBase + encodeURI(path), token);
+      })
       .then(function (res) {
         if (res.status === 404) { return null; }
         if (!res.ok) { throw new Error('GitHub API error (' + res.status + ').'); }
@@ -1006,19 +1381,10 @@
       })
       .then(function (data) {
         if (!data) { return; } // already gone remotely; just remove locally
-        return ghApi('DELETE', apiPath, token, {
+        return ghApi('DELETE', apiBase + encodeURI(path), token, {
           message: 'Delete post card: ' + title,
           sha: data.sha
-        }).then(function (res) {
-          if (res.ok) { return; }
-          if (res.status === 401 || res.status === 403) {
-            setAdmin(null);
-            throw new Error('GitHub rejected the saved token — please sign in again via Admin Login.');
-          }
-          return res.json().then(function (d) {
-            throw new Error('GitHub API error (' + res.status + '): ' + (d && d.message ? d.message : res.statusText));
-          });
-        });
+        }).then(checkResponse);
       })
       .then(function () {
         removeCard(card);
