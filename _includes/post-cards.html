@@ -13,6 +13,7 @@
 {% assign A_chips = "" | split: "" %}
 {% assign A_time = "" | split: "" %}
 {% assign A_title = "" | split: "" %}
+{% assign A_path = "" | split: "" %}
 {% assign A_body = "" | split: "" %}
 {% assign U_keys = "" | split: "" %}
 {% assign U_names = "" | split: "" %}
@@ -26,6 +27,7 @@
   {% assign A_time = A_time | push: ufmt %}
   {% assign mt = m.title | default: "Untitled" %}
   {% assign A_title = A_title | push: mt %}
+  {% assign A_path = A_path | push: m.path %}
   {% if u %}
     {% assign us = u | date: "%s" %}
     {% if min_u == "" or us < min_u %}{% assign min_u = us %}{% endif %}
@@ -148,6 +150,9 @@
 <div class="post-view" id="post-cards">
   <div class="post-app" id="post-app">
     <aside class="post-side">
+      <div class="post-login">
+        <button type="button" class="post-login__btn" id="post-login-btn">Admin Login</button>
+      </div>
       <h1 class="post-brand">🗒️ Post cards</h1>
       <div class="post-stats">
         <div class="post-stat">
@@ -224,6 +229,14 @@
               <div class="post-card__titlerow">
                 <span class="post-card__title">{{ A_title[i] | escape }}</span>
                 <span class="post-card__time" title="Last updated">{{ A_time[i] }}</span>
+                <span class="post-card__menu">
+                  <button type="button" class="post-card__kebab" aria-label="Card actions" aria-haspopup="true" aria-expanded="false">
+                    <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><circle cx="8" cy="3" r="1.6"/><circle cx="8" cy="8" r="1.6"/><circle cx="8" cy="13" r="1.6"/></svg>
+                  </button>
+                  <span class="post-card__dropdown" hidden>
+                    <button type="button" class="post-card__delete" data-path="{{ A_path[i] | escape }}">Delete</button>
+                  </span>
+                </span>
               </div>
               {% if A_chips[i] != "" %}
               <div class="post-card__tags">{{ A_chips[i] }}</div>
@@ -241,6 +254,53 @@
       {% else %}
       <p class="post-empty" id="post-empty" hidden>No cards match the current filter.</p>
       {% endif %}
+    </div>
+  </div>
+</div>
+
+<button type="button" class="post-fab" id="post-fab" data-repo="{{ site.repository }}">
+  <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2z"/></svg>
+  Add card
+</button>
+
+<div class="post-modal" id="post-login-modal" hidden>
+  <div class="post-modal__overlay" data-close></div>
+  <div class="post-modal__dialog" role="dialog" aria-modal="true" aria-label="Admin login">
+    <h3 class="post-modal__title">Admin Login</h3>
+    <p class="post-modal__hint">Sign in with a GitHub personal access token (fine-grained, this repository → Contents: Read and write). It is verified against your GitHub account and stored only in this browser — never in the repo.</p>
+    <div class="post-field">
+      <label for="post-login-token">GitHub token</label>
+      <input id="post-login-token" type="password" placeholder="github_pat_…" autocomplete="off">
+    </div>
+    <p class="post-modal__error" id="post-login-error" hidden></p>
+    <div class="post-modal__actions">
+      <button type="button" class="post-btn" data-close>Cancel</button>
+      <button type="button" class="post-btn post-btn--primary" id="post-login-submit">Sign in</button>
+    </div>
+  </div>
+</div>
+
+<div class="post-modal" id="post-editor-modal" hidden>
+  <div class="post-modal__overlay" data-close></div>
+  <div class="post-modal__dialog post-modal__dialog--wide" role="dialog" aria-modal="true" aria-label="New card">
+    <h3 class="post-modal__title">New card</h3>
+    <div class="post-field">
+      <label for="post-new-title">Title</label>
+      <input id="post-new-title" type="text" placeholder="Card title">
+    </div>
+    <div class="post-field">
+      <label for="post-new-tags">Tags <span class="post-field__opt">(optional, comma separated)</span></label>
+      <input id="post-new-tags" type="text" placeholder="Training, RL">
+    </div>
+    <div class="post-field">
+      <label for="post-new-body">Content <span class="post-field__opt">(Markdown)</span></label>
+      <textarea id="post-new-body" rows="9" placeholder="Write Markdown here… Inline #tags also work."></textarea>
+    </div>
+    <p class="post-modal__hint">Saved as a Markdown file in <code>_post/</code> via the GitHub API; the site rebuilds in about a minute.</p>
+    <p class="post-modal__error" id="post-editor-error" hidden></p>
+    <div class="post-modal__actions">
+      <button type="button" class="post-btn" data-close>Cancel</button>
+      <button type="button" class="post-btn post-btn--primary" id="post-add-submit">Add card</button>
     </div>
   </div>
 </div>
