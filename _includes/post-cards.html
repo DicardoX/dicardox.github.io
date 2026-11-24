@@ -147,7 +147,9 @@
 {% assign m1 = now_s | minus: 2592000 | date: "%b" %}
 {% assign m2 = now_s | minus: 5184000 | date: "%b" %}
 
-<div class="post-view" id="post-cards">
+<link rel="stylesheet" href="/assets/js/katex/katex.min.css?v={{ site.time | date: "%s" }}">
+
+<div class="post-view tex2jax_ignore" id="post-cards">
   <div class="post-app" id="post-app">
     <aside class="post-side">
       <div class="post-login">
@@ -293,9 +295,17 @@
       <label for="post-new-tags">Tags <span class="post-field__opt">(optional, comma separated)</span></label>
       <input id="post-new-tags" type="text" placeholder="Training, RL">
     </div>
-    <div class="post-field">
-      <label for="post-new-body">Content <span class="post-field__opt">(Markdown)</span></label>
-      <textarea id="post-new-body" rows="9" placeholder="Write Markdown here…"></textarea>
+    <div class="post-field post-field--grow">
+      <div class="post-field__labelrow">
+        <label for="post-new-body">Content <span class="post-field__opt">(Markdown)</span></label>
+        <button type="button" class="post-preview-toggle" id="post-preview-toggle" aria-pressed="false">Preview</button>
+      </div>
+      <div class="post-editor">
+        <textarea id="post-new-body" placeholder="Write Markdown here…"></textarea>
+        <div class="post-editor__preview" id="post-preview-pane" hidden>
+          <div class="post-editor__preview-inner" id="post-editor-preview"></div>
+        </div>
+      </div>
     </div>
     <p class="post-modal__hint">Saved as a Markdown file in <code>_post/</code> via the GitHub API; the site rebuilds in about a minute.</p>
     <p class="post-modal__error" id="post-editor-error" hidden></p>
@@ -306,4 +316,7 @@
   </div>
 </div>
 
+<script src="/assets/js/katex/katex.min.js?v={{ site.time | date: "%s" }}"></script>
+<script src="/assets/js/katex/contrib/auto-render.min.js?v={{ site.time | date: "%s" }}"></script>
+<script src="/assets/js/marked.min.js?v={{ site.time | date: "%s" }}"></script>
 <script src="/assets/js/post.js?v={{ site.time | date: "%s" }}"></script>

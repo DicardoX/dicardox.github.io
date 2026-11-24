@@ -19,6 +19,7 @@
       savedScrollY = window.pageYOffset || 0;
       document.body.classList.add('post-full');
       window.scrollTo(0, 0);
+      typesetMath(document.getElementById('post-cards'));
     } else {
       document.body.classList.remove('post-full');
       if (pendingAnchor) {
@@ -103,6 +104,9 @@
     var header = card.querySelector('.post-card__header');
     if (header) { header.setAttribute('aria-expanded', 'false'); }
   });
+
+  // Render LaTeX math in the statically built card bodies
+  typesetMath(cardsEl);
 
   function toggleCard(card, header) {
     var collapsed = card.classList.toggle('is-collapsed');
@@ -435,6 +439,7 @@
     if (addBtn) { addBtn.textContent = 'Add card'; }
     var err = document.getElementById('post-editor-error');
     if (err) { err.hidden = true; }
+    setPreviewOpen(false);
     openModal(editorModal);
     var t = document.getElementById('post-new-title');
     if (t) { t.focus(); }
@@ -503,6 +508,7 @@
     document.getElementById('post-new-body').value = parsed.body;
     var err = document.getElementById('post-editor-error');
     if (err) { err.hidden = true; }
+    setPreviewOpen(false);
     openModal(editorModal);
     document.getElementById('post-new-title').focus();
   }
@@ -538,6 +544,41 @@
         editBtn.disabled = false;
         editBtn.textContent = 'Edit';
       });
+  }
+
+  /* Live preview: the toggle button in the Content label row switches a
+     rendered pane on the right side of the editor (rendered by marked.js);
+     the button turns dark while the preview is open */
+  var bodyInput = document.getElementById('post-new-body');
+  var previewToggle = document.getElementById('post-preview-toggle');
+  var previewPane = document.getElementById('post-preview-pane');
+  var previewEl = document.getElementById('post-editor-preview');
+  var previewOpen = false;
+
+  function renderPreview() {
+    if (previewEl && bodyInput) {
+      var v = bodyInput.value.trim();
+      previewEl.innerHTML = v ? mdRender(v) : '<span class="post-editor__preview-empty">Nothing to preview</span>';
+      typesetMath(previewEl);
+    }
+  }
+
+  function setPreviewOpen(open) {
+    previewOpen = open;
+    if (previewToggle) { previewToggle.setAttribute('aria-pressed', open ? 'true' : 'false'); }
+    if (previewPane) { previewPane.hidden = !open; }
+    if (open) { renderPreview(); }
+  }
+
+  if (previewToggle) {
+    previewToggle.addEventListener('click', function () {
+      setPreviewOpen(!previewOpen);
+    });
+  }
+  if (bodyInput) {
+    bodyInput.addEventListener('input', function () {
+      if (previewOpen) { renderPreview(); }
+    });
   }
 
   if (fab) {
@@ -583,6 +624,77 @@
   function b64encode(str) {
     return btoa(unescape(encodeURIComponent(str)));
   }
+
+  // Minimal markdown preview for cards inserted right after add/edit:
+  // fenced code blocks and inline code are rendered, everything else stays
+  // plain text. The full kramdown/rouge rendering replaces this once
+  // GitHub Pages rebuilds the site.
+  function renderBodyPreview(text) {
+    var out = [];
+    var buf = [];
+    var inCode = false;
+    function flushText() {
+      if (!buf.length) { return; }
+      out.push(escapeHtml(buf.join('\n'))
+        .replace(/`([^`\n]+)`/g, '<code>$1</code>')
+        .replace(/\n/g, '<br>'));
+      buf = [];
+    }
+    function flushCode() {
+      out.push('<pre class="post-preview-code"><code>' + escapeHtml(buf.join('\n')) + '</code></pre>');
+      buf = [];
+    }
+    text.split('\n').forEach(function (line) {
+      if (/^```/.test(line)) {
+        if (inCode) { flushCode(); inCode = false; }
+        else { flushText(); inCode = true; }
+      } else {
+        buf.push(line);
+      }
+    });
+    if (inCode) { flushCode(); } else { flushText(); }
+    return out.join('');
+  }
+
+  /* Keep $...$ math intact through the markdown parser (marked would
+     otherwise treat characters like _ as emphasis and break the formula);
+     KaTeX renders it afterwards. Only $...$ is supported — $$ and \[ \]
+     are mangled by kramdown when the site is built */
+  function protectMath(text) {
+    var store = [];
+    var out = text.replace(/\$[^$\n]+?\$/g, function (m) {
+      store.push(m);
+      return 'xMATHGUARDx' + (store.length - 1) + 'x';
+    });
+    return { text: out, store: store };
+  }
+
+  function restoreMath(html, store) {
+    return html.replace(/xMATHGUARDx(\d+)x/g, function (m, i) {
+      return escapeHtml(store[+i]);
+    });
+  }
+
+  // KaTeX (vendored locally) renders math synchronously; the post area is
+  // marked tex2jax_ignore so the site-wide MathJax leaves it to KaTeX
+  function typesetMath(el) {
+    if (el && window.renderMathInElement) {
+      renderMathInElement(el, {
+        delimiters: [{ left: '$', right: '$', display: false }],
+        throwOnError: false
+      });
+    }
+  }
+
+  // Full markdown rendering (used by the editor live preview and the instant
+  // card preview) when the bundled marked.js is available; the mini renderer
+  // above is the offline fallback
+  var mdRender = (typeof marked !== 'undefined' && marked.parse)
+    ? function (text) {
+        var p = protectMath(text);
+        return restoreMath(marked.parse(p.text, { gfm: true, breaks: false }), p.store);
+      }
+    : renderBodyPreview;
 
   function parseTagsInput(raw) {
     var out = [];
@@ -696,9 +808,10 @@
       + '</div>'
       + (chipsHtml ? '<div class="post-card__tags">' + chipsHtml + '</div>' : '')
       + '</div></header>'
-      + '<div class="post-card__body">' + escapeHtml(opts.body).replace(/\n/g, '<br>') + '</div>';
+      + '<div class="post-card__body">' + mdRender(opts.body) + '</div>';
 
     cardsEl.insertBefore(article, cardsEl.firstChild);
+    typesetMath(article.querySelector('.post-card__body'));
     cards.push(article);
     cardTags.push(keys);
     cardText.push((opts.title + ' ' + keys.join(' ') + ' ' + opts.body).toLowerCase());
@@ -757,7 +870,10 @@
     }
 
     var bodyEl = card.querySelector('.post-card__body');
-    if (bodyEl) { bodyEl.innerHTML = escapeHtml(opts.body).replace(/\n/g, '<br>'); }
+    if (bodyEl) {
+      bodyEl.innerHTML = mdRender(opts.body);
+      typesetMath(bodyEl);
+    }
 
     if (i !== -1) {
       cardTags[i] = keys;
