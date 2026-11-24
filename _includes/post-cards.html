@@ -1,12 +1,6 @@
----
-permalink: /memo/
-title: "Memo Cards"
-author_profile: false
----
-
-{% comment %} Sort memos by updated (fallback: file date), newest first {% endcomment %}
+{% comment %} Sort posts by updated (fallback: file date), newest first {% endcomment %}
 {% assign pairs = "" | split: "" %}
-{% for m in site.memos %}
+{% for m in site.post %}
   {% assign u = m.updated | default: m.date %}
   {% assign ukey = u | date: "%s" %}
   {% assign pair = ukey | append: "|" | append: m.slug %}
@@ -14,10 +8,11 @@ author_profile: false
 {% endfor %}
 {% assign pairs = pairs | sort | reverse %}
 
-{% comment %} One pass over the sorted memos: extract tags, render chips/body, collect stats {% endcomment %}
+{% comment %} One pass over the sorted posts: extract tags, render chips/body, collect stats {% endcomment %}
 {% assign A_attr = "" | split: "" %}
 {% assign A_chips = "" | split: "" %}
 {% assign A_time = "" | split: "" %}
+{% assign A_title = "" | split: "" %}
 {% assign A_body = "" | split: "" %}
 {% assign U_keys = "" | split: "" %}
 {% assign U_names = "" | split: "" %}
@@ -25,10 +20,12 @@ author_profile: false
 {% assign min_u = "" %}
 {% for pair in pairs %}
   {% assign slug = pair | split: "|" | last %}
-  {% assign m = site.memos | where: "slug", slug | first %}
+  {% assign m = site.post | where: "slug", slug | first %}
   {% assign u = m.updated | default: m.date %}
   {% assign ufmt = u | date: "%Y-%m-%d %H:%M" %}
   {% assign A_time = A_time | push: ufmt %}
+  {% assign mt = m.title | default: "Untitled" %}
+  {% assign A_title = A_title | push: mt %}
   {% if u %}
     {% assign us = u | date: "%s" %}
     {% if min_u == "" or us < min_u %}{% assign min_u = us %}{% endif %}
@@ -46,9 +43,9 @@ author_profile: false
       {% endif %}
     {% endfor %}
   {% endif %}
-  {% capture memo_nl %}
+  {% capture post_nl %}
 {% endcapture %}
-  {% assign words = m.content | replace: memo_nl, " " | replace: "<", " " | replace: ">", " " | split: " " %}
+  {% assign words = m.content | replace: post_nl, " " | replace: "<", " " | replace: ">", " " | split: " " %}
   {% for w in words %}
     {% assign w = w | strip %}
     {% assign fw = w | slice: 0, 1 %}
@@ -65,7 +62,7 @@ author_profile: false
     {% endif %}
   {% endfor %}
   {% assign A_attr = A_attr | push: card_tags_l %}
-  {% capture chips_html %}{% for t in card_tags %}<button type="button" class="memo-chip" data-tag="{{ t | downcase | escape }}">#{{ t | escape }}</button>{% endfor %}{% endcapture %}
+  {% capture chips_html %}{% for t in card_tags %}<button type="button" class="post-chip" data-tag="{{ t | downcase | escape }}">#{{ t | escape }}</button>{% endfor %}{% endcapture %}
   {% assign A_chips = A_chips | push: chips_html %}
   {% capture body_html %}{{ m.content | markdownify }}{% endcapture %}
   {% assign A_body = A_body | push: body_html %}
@@ -107,7 +104,7 @@ author_profile: false
 {% endfor %}
 {% assign tag_rows = tag_rows | sort %}
 
-{% comment %} Stats: notes / tags / days since first memo {% endcomment %}
+{% comment %} Stats: notes / tags / days since first post {% endcomment %}
 {% assign stat_tags = U_keys.size %}
 {% if min_u == "" %}
   {% assign stat_days = 0 %}
@@ -115,10 +112,10 @@ author_profile: false
   {% assign stat_days = site.time | date: "%s" | minus: min_u | divided_by: 86400 | plus: 1 %}
 {% endif %}
 
-{% comment %} Heatmap: memo count per day {% endcomment %}
+{% comment %} Heatmap: post count per day {% endcomment %}
 {% assign heat_days = "" | split: "" %}
 {% assign heat_counts = "" | split: "" %}
-{% for m in site.memos %}
+{% for m in site.post %}
   {% assign u = m.updated | default: m.date %}
   {% if u %}
     {% assign day = u | date: "%Y-%m-%d" %}
@@ -148,24 +145,25 @@ author_profile: false
 {% assign m1 = now_s | minus: 2592000 | date: "%b" %}
 {% assign m2 = now_s | minus: 5184000 | date: "%b" %}
 
-<div class="memo-app" id="memo-app">
-  <aside class="memo-side">
-    <h1 class="memo-brand">🗒️ Memo Cards</h1>
-    <div class="memo-stats">
-      <div class="memo-stat">
-        <div class="memo-stat__num">{{ site.memos.size }}</div>
-        <div class="memo-stat__label">Notes</div>
+<div class="post-view" id="post-cards">
+  <div class="post-app" id="post-app">
+    <aside class="post-side">
+      <h1 class="post-brand">🗒️ Post cards</h1>
+      <div class="post-stats">
+        <div class="post-stat">
+          <div class="post-stat__num">{{ site.post.size }}</div>
+          <div class="post-stat__label">Notes</div>
+        </div>
+        <div class="post-stat">
+          <div class="post-stat__num">{{ stat_tags }}</div>
+          <div class="post-stat__label">Tags</div>
+        </div>
+        <div class="post-stat">
+          <div class="post-stat__num">{{ stat_days }}</div>
+          <div class="post-stat__label">Days</div>
+        </div>
       </div>
-      <div class="memo-stat">
-        <div class="memo-stat__num">{{ stat_tags }}</div>
-        <div class="memo-stat__label">Tags</div>
-      </div>
-      <div class="memo-stat">
-        <div class="memo-stat__num">{{ stat_days }}</div>
-        <div class="memo-stat__label">Days</div>
-      </div>
-    </div>
-    <div class="memo-heatmap" aria-hidden="true">
+      <div class="post-heatmap" aria-hidden="true">
 {% for i in (0..83) %}
   {% assign back = 83 | minus: i %}
   {% assign back_s = back | times: 86400 %}
@@ -186,57 +184,65 @@ author_profile: false
   {% else %}
     {% assign lvl = 0 %}
   {% endif %}
-      <span class="memo-heatmap__cell memo-heatmap__cell--l{{ lvl }}" title="{{ day }} · {{ c }} memos"></span>
+        <span class="post-heatmap__cell post-heatmap__cell--l{{ lvl }}" title="{{ day }} · {{ c }} cards"></span>
 {% endfor %}
-    </div>
-    <div class="memo-heatmap__months"><span>{{ m2 }}</span><span>{{ m1 }}</span><span>{{ now_s | date: "%b" }}</span></div>
-    <nav class="memo-nav">
-      <button type="button" class="memo-nav__item is-active" id="memo-filter-all" data-tag="">
-        <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>
-        All cards
-      </button>
-    </nav>
-    <div class="memo-side__label">Tags</div>
-    <div class="memo-tags" id="memo-tag-list">
+      </div>
+      <div class="post-heatmap__months"><span>{{ m2 }}</span><span>{{ m1 }}</span><span>{{ now_s | date: "%b" }}</span></div>
+      <nav class="post-nav">
+        <button type="button" class="post-nav__item is-active" id="post-filter-all" data-tag="">
+          <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true"><rect x="1" y="1" width="6" height="6" rx="1.5"/><rect x="9" y="1" width="6" height="6" rx="1.5"/><rect x="1" y="9" width="6" height="6" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1.5"/></svg>
+          All cards
+        </button>
+      </nav>
+      <div class="post-side__label">Tags</div>
+      <div class="post-tags" id="post-tag-list">
 {% for row in tag_rows %}
   {% assign parts = row | split: "||" %}
-      <button type="button" class="memo-tag" data-tag="{{ parts[0] | escape }}">
-        <span class="memo-tag__hash">#</span>
-        <span class="memo-tag__name">{{ parts[1] | escape }}</span>
-        <span class="memo-tag__count">{{ parts[2] }}</span>
-      </button>
+        <button type="button" class="post-tag" data-tag="{{ parts[0] | escape }}">
+          <span class="post-tag__hash">#</span>
+          <span class="post-tag__name">{{ parts[1] | escape }}</span>
+          <span class="post-tag__count">{{ parts[2] }}</span>
+        </button>
 {% endfor %}
-    </div>
-    <p class="memo-side__hint">Cards are Markdown files in the <code>_memos</code> folder of this repo — push to GitHub to update.</p>
-  </aside>
-  <div class="memo-main">
-    <div class="memo-main__topbar">
-      <span class="memo-main__view" id="memo-view-label">All cards</span>
-      <div class="memo-search">
-        <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
-        <input id="memo-search" type="search" placeholder="Search memos (⌘K)" autocomplete="off">
       </div>
-    </div>
-    <div class="memo-cards" id="memo-cards">
+    </aside>
+    <div class="post-main">
+      <div class="post-main__topbar">
+        <span class="post-main__view" id="post-view-label">All cards</span>
+        <div class="post-search">
+          <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><line x1="10.5" y1="10.5" x2="14" y2="14"/></svg>
+          <input id="post-search" type="search" placeholder="Search cards (⌘K)" autocomplete="off">
+        </div>
+      </div>
+      <div class="post-cards" id="post-cards-list">
 {% assign last = pairs.size | minus: 1 %}
 {% for i in (0..last) %}
-      <article class="memo-card" data-tags="{{ A_attr[i] | join: '||' | escape }}">
-        <div class="memo-card__time" title="Last updated">{{ A_time[i] }}</div>
-        {% if A_chips[i] != "" %}
-        <div class="memo-card__tags">{{ A_chips[i] }}</div>
-        {% endif %}
-        <div class="memo-card__body">
+        <article class="post-card" data-tags="{{ A_attr[i] | join: '||' | escape }}">
+          <header class="post-card__header" role="button" tabindex="0" aria-expanded="true">
+            <svg class="post-card__chevron" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5"/></svg>
+            <div class="post-card__head-main">
+              <div class="post-card__titlerow">
+                <span class="post-card__title">{{ A_title[i] | escape }}</span>
+                <span class="post-card__time" title="Last updated">{{ A_time[i] }}</span>
+              </div>
+              {% if A_chips[i] != "" %}
+              <div class="post-card__tags">{{ A_chips[i] }}</div>
+              {% endif %}
+            </div>
+          </header>
+          <div class="post-card__body">
 {{ A_body[i] }}
-        </div>
-      </article>
+          </div>
+        </article>
 {% endfor %}
+      </div>
+      {% if site.post.size == 0 %}
+      <p class="post-empty">No cards yet. Add a Markdown file to the <code>_post</code> folder of the repo to create the first one.</p>
+      {% else %}
+      <p class="post-empty" id="post-empty" hidden>No cards match the current filter.</p>
+      {% endif %}
     </div>
-    {% if site.memos.size == 0 %}
-    <p class="memo-empty">No memo cards yet. Add a Markdown file to the <code>_memos</code> folder of the repo to create the first one.</p>
-    {% else %}
-    <p class="memo-empty" id="memo-empty" hidden>No memos match the current filter.</p>
-    {% endif %}
   </div>
 </div>
 
-<script src="/assets/js/memo.js"></script>
+<script src="/assets/js/post.js"></script>

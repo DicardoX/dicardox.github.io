@@ -1,0 +1,492 @@
+/* ==========================================================================
+   Posts page (GitHub light palette, black accents)
+   ========================================================================== */
+
+$post-primary: #1f2328;
+$post-primary-dark: #3a3f45;
+$post-accent-fg: #1f2328;
+$post-topic-bg: #eaeef2;
+$post-topic-bg-hover: #d8dee4;
+$post-bg: #f6f8fa;
+$post-card-bg: #ffffff;
+$post-hover-bg: #f6f8fa;
+$post-line: #d0d7de;
+$post-muted: #656d76;
+$post-faint: #8c959f;
+$post-text: #1f2328;
+
+.post-app {
+  display: flex;
+  align-items: stretch;
+  margin-top: 1em;
+  border: 1px solid $post-line;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+
+  @include breakpoint(max-width $medium) {
+    flex-direction: column;
+  }
+}
+
+/* ---------- left sidebar ---------- */
+
+.post-side {
+  flex: 0 0 248px;
+  padding: 22px 18px 16px 18px;
+  background: #fff;
+  border-right: 1px solid $post-line;
+
+  @include breakpoint(max-width $medium) {
+    flex: none;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid $post-line;
+  }
+}
+
+.post-brand {
+  margin: 0 0 16px 0;
+  padding: 0;
+  border: none;
+  font-size: 1.05em;
+  font-weight: 700;
+  color: $post-text;
+}
+
+.post-stats {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.post-stat {
+  flex: 1;
+  min-width: 0;
+}
+
+.post-stat__num {
+  font-size: 1.55em;
+  font-weight: 700;
+  line-height: 1.1;
+  color: $post-text;
+}
+
+.post-stat__label {
+  margin-top: 3px;
+  font-size: 0.72em;
+  color: $post-muted;
+}
+
+.post-heatmap {
+  display: grid;
+  grid-template-rows: repeat(7, auto);
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-flow: column;
+  gap: 2.5px;
+  margin-bottom: 4px;
+}
+
+.post-heatmap__cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 2px;
+  background: #ebedf0;
+}
+
+.post-heatmap__cell--l1 { background: #d0d7de; }
+.post-heatmap__cell--l2 { background: #8c959f; }
+.post-heatmap__cell--l3 { background: #424a53; }
+.post-heatmap__cell--l4 { background: #1f2328; }
+
+.post-heatmap__months {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  font-size: 0.68em;
+  color: $post-muted;
+}
+
+.post-nav {
+  margin-bottom: 16px;
+}
+
+.post-nav__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 9px 14px;
+  border: none;
+  border-radius: 6px;
+  background: $post-primary;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.92em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: $global-transition;
+
+  svg {
+    opacity: 0.9;
+  }
+
+  &:hover {
+    background: $post-primary-dark;
+  }
+
+  &:not(.is-active) {
+    background: none;
+    color: $post-text;
+    font-weight: 500;
+
+    &:hover {
+      background: $post-hover-bg;
+    }
+  }
+}
+
+.post-side__label {
+  margin: 0 0 4px 0;
+  font-size: 0.78em;
+  color: $post-muted;
+}
+
+.post-tags {
+  display: flex;
+  flex-direction: column;
+}
+
+.post-tag {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 8px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: $global-transition;
+
+  &:hover {
+    background: $post-hover-bg;
+  }
+
+  &.is-active {
+    background: $post-topic-bg;
+
+    .post-tag__hash,
+    .post-tag__name {
+      color: $post-accent-fg;
+      font-weight: 600;
+    }
+  }
+}
+
+.post-tag__hash {
+  color: $post-faint;
+  font-weight: 600;
+}
+
+.post-tag__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: $post-text;
+  font-size: 0.9em;
+}
+
+.post-tag__count {
+  font-size: 0.72em;
+  color: $post-faint;
+}
+
+/* ---------- main column ---------- */
+
+.post-main {
+  flex: 1;
+  min-width: 0;
+  padding: 20px 24px 24px 24px;
+  background: $post-bg;
+}
+
+.post-main__topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.post-main__view {
+  font-size: 1.02em;
+  font-weight: 700;
+  color: $post-text;
+}
+
+.post-search {
+  position: relative;
+  width: 250px;
+  max-width: 50%;
+  color: $post-muted;
+
+  svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  input {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding: 7px 12px 7px 34px;
+    border: 1px solid $post-line;
+    border-radius: 6px;
+    background: $post-bg;
+    font-family: inherit;
+    font-size: 0.85em;
+    color: $post-text;
+    outline: none;
+
+    &::placeholder {
+      color: $post-muted;
+    }
+
+    &:focus {
+      background: #fff;
+      border-color: $post-primary;
+      box-shadow: 0 0 0 3px rgba(31, 35, 40, 0.15);
+    }
+  }
+}
+
+.post-card {
+  margin-bottom: 16px;
+  border: 1px solid $post-line;
+  border-radius: 6px;
+  background: $post-card-bg;
+  box-shadow: 0 1px 0 rgba(31, 35, 40, 0.04);
+}
+
+.post-card__header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 16px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background: $post-hover-bg;
+  }
+}
+
+.post-card__chevron {
+  flex: none;
+  margin-top: 3px;
+  color: $post-muted;
+  transition: transform 0.15s ease-in-out;
+}
+
+.post-card:not(.is-collapsed) .post-card__chevron {
+  transform: rotate(90deg);
+}
+
+.post-card__head-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.post-card__titlerow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.post-card__title {
+  font-size: 0.98em;
+  font-weight: 600;
+  color: $post-text;
+}
+
+.post-card__time {
+  flex: none;
+  font-size: 0.76em;
+  color: $post-muted;
+  white-space: nowrap;
+}
+
+.post-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.post-chip {
+  padding: 0.15em 0.75em;
+  border: none;
+  border-radius: 2em;
+  background: $post-topic-bg;
+  font-family: inherit;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: $post-accent-fg;
+  cursor: pointer;
+  transition: $global-transition;
+
+  &:hover {
+    background: $post-topic-bg-hover;
+    text-decoration: none;
+  }
+}
+
+.post-card__body {
+  padding: 0 20px 18px 44px;
+  color: $post-text;
+  font-size: 0.92em;
+  line-height: 1.75;
+
+  p,
+  li,
+  dl {
+    font-size: inherit;
+  }
+
+  p,
+  ul,
+  ol {
+    margin-bottom: 0.6em;
+  }
+
+  & > :last-child {
+    margin-bottom: 0;
+  }
+
+  pre {
+    overflow-x: auto;
+  }
+
+  a {
+    color: $post-accent-fg;
+  }
+
+  code {
+    background: rgba(175, 184, 193, 0.2);
+    color: inherit;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: $post-text;
+    border-bottom-color: $post-line;
+  }
+}
+
+.post-card.is-collapsed .post-card__body {
+  display: none;
+}
+
+.post-card:not(.is-collapsed) .post-card__body {
+  border-top: 1px solid $post-line;
+  padding-top: 14px;
+}
+
+.post-empty {
+  padding: 12px 4px;
+  color: $post-muted;
+  font-size: 0.9em;
+}
+
+/* The posts panel lives on the homepage and is toggled via the #post-cards
+   hash: when active, the app fills the remaining window below the masthead,
+   sidebar and card feed scroll independently */
+.post-view {
+  display: none;
+}
+
+body.post-full {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+
+  #main {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .sidebar,
+  article.page {
+    display: none;
+  }
+
+  .post-view {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+  }
+
+  .post-app {
+    flex: 1;
+    min-height: 0;
+    margin: 0;
+    border: none;
+    border-top: 1px solid $post-line;
+    border-radius: 0;
+  }
+
+  .post-side,
+  .post-main {
+    overflow-y: auto;
+  }
+
+  .post-main__topbar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 16px 0 14px 0;
+    margin-bottom: 4px;
+    background: $post-bg;
+  }
+
+  .post-main {
+    padding-top: 0;
+  }
+
+  @include breakpoint(max-width $medium) {
+    height: auto;
+    overflow: visible;
+
+    #main {
+      display: block;
+    }
+
+    .post-side,
+    .post-main {
+      overflow: visible;
+    }
+
+    .post-main {
+      padding-top: 16px;
+    }
+  }
+}

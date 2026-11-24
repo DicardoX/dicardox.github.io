@@ -131,7 +131,7 @@ defaults:
 
 # Collections
 collections:
-  memos:
+  post:
     output: false
 
 
