@@ -1,5 +1,5 @@
 /* Posts section: tag filter + text search + hash-based view switching
-   + admin login (GitHub token) + add/delete cards via the GitHub API */
+   + admin login (GitHub token) + add/edit/delete cards via the GitHub API */
 (function () {
   'use strict';
 
@@ -176,7 +176,7 @@
   });
 
   // Clicking a tag chip filters by that tag; clicking a card header toggles it;
-  // the kebab menu opens card actions (delete)
+  // the kebab menu opens card actions (edit, delete)
   if (cardsEl) {
     cardsEl.addEventListener('click', function (e) {
       var node = e.target;
@@ -184,16 +184,22 @@
       var header = null;
       var card = null;
       var kebab = null;
+      var edit = null;
       var del = null;
       while (node && node !== cardsEl) {
         if (node.classList) {
           if (!chip && node.classList.contains('post-chip')) { chip = node; }
+          if (!edit && node.classList.contains('post-card__edit')) { edit = node; }
           if (!del && node.classList.contains('post-card__delete')) { del = node; }
           if (!kebab && node.classList.contains('post-card__kebab')) { kebab = node; }
           if (!header && node.classList.contains('post-card__header')) { header = node; }
           if (!card && node.classList.contains('post-card')) { card = node; }
         }
         node = node.parentNode;
+      }
+      if (edit) {
+        handleEdit(edit, card);
+        return;
       }
       if (del) {
         handleDelete(del, card);
@@ -411,12 +417,127 @@
     });
   }
 
+  // The editor modal serves both "add" and "edit"; `editing` is null for add
+  // and { card, path, sha } while an existing card is being edited
+  var editing = null;
+  var editorTitle = document.getElementById('post-editor-title');
+
+  function clearEditorFields() {
+    document.getElementById('post-new-title').value = '';
+    document.getElementById('post-new-tags').value = '';
+    document.getElementById('post-new-body').value = '';
+  }
+
   function openEditor() {
+    if (editing) { clearEditorFields(); }
+    editing = null;
+    if (editorTitle) { editorTitle.textContent = 'New card'; }
+    if (addBtn) { addBtn.textContent = 'Add card'; }
     var err = document.getElementById('post-editor-error');
     if (err) { err.hidden = true; }
     openModal(editorModal);
     var t = document.getElementById('post-new-title');
     if (t) { t.focus(); }
+  }
+
+  function unquoteYaml(s) {
+    s = s.trim();
+    if (s.length >= 2 && s.charAt(0) === '"' && s.charAt(s.length - 1) === '"') {
+      s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+    }
+    return s;
+  }
+
+  function parseTagList(value) {
+    var tags = [];
+    value = value.trim();
+    if (value.charAt(0) === '[' && value.charAt(value.length - 1) === ']') {
+      value.slice(1, -1).split(',').forEach(function (t) {
+        t = unquoteYaml(t);
+        if (t && tags.indexOf(t) === -1) { tags.push(t); }
+      });
+    }
+    return tags;
+  }
+
+  // Split a card source file into front-matter fields and the Markdown body
+  function parseCardSource(text) {
+    var parsed = { title: '', tags: [], body: text };
+    var m = text.match(/^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*\r?\n?/);
+    if (!m) { return parsed; }
+    parsed.body = text.slice(m[0].length).replace(/^[\r\n]+/, '').replace(/[\r\n]+$/, '');
+    var inTags = false;
+    m[1].split(/\r?\n/).forEach(function (line) {
+      if (inTags && /^\s*-\s+/.test(line)) {
+        var item = unquoteYaml(line.replace(/^\s*-\s+/, ''));
+        if (item && parsed.tags.indexOf(item) === -1) { parsed.tags.push(item); }
+        return;
+      }
+      inTags = false;
+      var t = line.match(/^title\s*:\s*(.*)$/);
+      if (t) { parsed.title = unquoteYaml(t[1]); return; }
+      var g = line.match(/^tags\s*:\s*(.*)$/);
+      if (g) {
+        if (g[1].trim() === '') { inTags = true; }
+        else { parsed.tags = parseTagList(g[1]); }
+      }
+    });
+    return parsed;
+  }
+
+  function b64decode(s) {
+    return decodeURIComponent(escape(atob(s.replace(/\s/g, ''))));
+  }
+
+  function getToken() {
+    try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; }
+  }
+
+  function openEditorForCard(card, path, sha, source) {
+    var parsed = parseCardSource(source);
+    editing = { card: card, path: path, sha: sha };
+    if (editorTitle) { editorTitle.textContent = 'Edit card'; }
+    if (addBtn) { addBtn.textContent = 'Save'; }
+    document.getElementById('post-new-title').value = parsed.title;
+    document.getElementById('post-new-tags').value = parsed.tags.join(', ');
+    document.getElementById('post-new-body').value = parsed.body;
+    var err = document.getElementById('post-editor-error');
+    if (err) { err.hidden = true; }
+    openModal(editorModal);
+    document.getElementById('post-new-title').focus();
+  }
+
+  function handleEdit(editBtn, card) {
+    var path = editBtn.getAttribute('data-path');
+    if (!path || !card) { return; }
+    closeAllMenus();
+    var token = getToken();
+    if (!token) {
+      window.alert('Please sign in first (Admin Login on the left).');
+      return;
+    }
+    editBtn.disabled = true;
+    editBtn.textContent = 'Loading…';
+
+    ghApi('GET', '/repos/' + repo + '/contents/' + encodeURI(path), token)
+      .then(function (res) {
+        if (res.status === 401 || res.status === 403) {
+          setAdmin(null);
+          throw new Error('GitHub rejected the saved token — please sign in again via Admin Login.');
+        }
+        if (!res.ok) { throw new Error('GitHub API error (' + res.status + ').'); }
+        return res.json();
+      })
+      .then(function (data) {
+        openEditorForCard(card, path, data.sha, b64decode(data.content));
+      })
+      .catch(function (e) {
+        window.alert(e.message || 'Network error — please retry.');
+      })
+      .then(function () {
+        editBtn.disabled = false;
+        editBtn.textContent = 'Edit';
+      });
   }
 
   if (fab) {
@@ -472,14 +593,15 @@
     return out;
   }
 
-  function extractInlineTags(text) {
-    var tags = [];
-    var re = /(?:^|\s)#([\p{L}\p{N}_][\p{L}\p{N}_-]*)/gu;
-    var m;
-    while ((m = re.exec(text))) {
-      if (tags.indexOf(m[1]) === -1) { tags.push(m[1]); }
-    }
-    return tags;
+  // Tags come only from the Tags field of the editor modal
+  function tagKeys(tags) {
+    var keys = [];
+    var disp = {};
+    tags.forEach(function (t) {
+      var k = t.toLowerCase();
+      if (keys.indexOf(k) === -1) { keys.push(k); disp[k] = t; }
+    });
+    return { keys: keys, disp: disp };
   }
 
   // Sidebar stats / tag counts (updated live on add/delete; the persistent
@@ -544,12 +666,9 @@
   // Prepend the new card to the feed right away (full markdown rendering
   // happens once GitHub Pages rebuilds)
   function prependCard(opts) {
-    var keys = [];
-    var disp = {};
-    opts.tags.concat(extractInlineTags(opts.body)).forEach(function (t) {
-      var k = t.toLowerCase();
-      if (keys.indexOf(k) === -1) { keys.push(k); disp[k] = t; }
-    });
+    var tk = tagKeys(opts.tags);
+    var keys = tk.keys;
+    var disp = tk.disp;
 
     var chipsHtml = keys.map(function (k) {
       return '<button type="button" class="post-chip" data-tag="' + escapeHtml(k) + '">#' + escapeHtml(disp[k]) + '</button>';
@@ -570,6 +689,7 @@
       + '<svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><circle cx="8" cy="3" r="1.6"/><circle cx="8" cy="8" r="1.6"/><circle cx="8" cy="13" r="1.6"/></svg>'
       + '</button>'
       + '<span class="post-card__dropdown" hidden>'
+      + '<button type="button" class="post-card__edit" data-path="' + escapeHtml(opts.path) + '">Edit</button>'
       + '<button type="button" class="post-card__delete" data-path="' + escapeHtml(opts.path) + '">Delete</button>'
       + '</span>'
       + '</span>'
@@ -601,8 +721,59 @@
     applyFilters();
   }
 
+  // Reflect an edited card in the feed right away (full markdown rendering
+  // happens once GitHub Pages rebuilds); the card moves to the top because
+  // the feed is sorted by updated time
+  function updateCard(card, opts) {
+    var tk = tagKeys(opts.tags);
+    var keys = tk.keys;
+    var i = cards.indexOf(card);
+    var oldKeys = i !== -1 ? cardTags[i] : [];
+
+    card.setAttribute('data-tags', keys.join('||'));
+    var titleEl = card.querySelector('.post-card__title');
+    if (titleEl) { titleEl.textContent = opts.title; }
+    var timeEl = card.querySelector('.post-card__time');
+    if (timeEl) { timeEl.textContent = opts.timeText; }
+
+    var chipsHtml = keys.map(function (k) {
+      return '<button type="button" class="post-chip" data-tag="' + escapeHtml(k) + '">#' + escapeHtml(tk.disp[k]) + '</button>';
+    }).join('');
+    var tagsEl = card.querySelector('.post-card__tags');
+    if (chipsHtml) {
+      if (tagsEl) {
+        tagsEl.innerHTML = chipsHtml;
+      } else {
+        var headMain = card.querySelector('.post-card__head-main');
+        if (headMain) {
+          tagsEl = document.createElement('div');
+          tagsEl.className = 'post-card__tags';
+          tagsEl.innerHTML = chipsHtml;
+          headMain.appendChild(tagsEl);
+        }
+      }
+    } else if (tagsEl) {
+      tagsEl.parentNode.removeChild(tagsEl);
+    }
+
+    var bodyEl = card.querySelector('.post-card__body');
+    if (bodyEl) { bodyEl.innerHTML = escapeHtml(opts.body).replace(/\n/g, '<br>'); }
+
+    if (i !== -1) {
+      cardTags[i] = keys;
+      cardText[i] = (opts.title + ' ' + keys.join(' ') + ' ' + opts.body).toLowerCase();
+    }
+    adjustTagCounts(oldKeys, -1, null);
+    adjustTagCounts(keys, 1, tk.disp);
+    if (card.parentNode === cardsEl && cardsEl.firstChild !== card) {
+      cardsEl.insertBefore(card, cardsEl.firstChild);
+    }
+    applyFilters();
+    card.scrollIntoView();
+  }
+
   function checkResponse(res) {
-    if (res.status === 201) { return; }
+    if (res.status === 200 || res.status === 201) { return; }
     if (res.status === 401 || res.status === 403) {
       setAdmin(null);
       throw new Error('GitHub rejected the saved token — please sign in again via Admin Login.');
@@ -630,8 +801,7 @@
         err.hidden = false;
         return;
       }
-      var token = null;
-      try { token = localStorage.getItem(TOKEN_KEY); } catch (e) { /* ignore */ }
+      var token = getToken();
       if (!token) {
         err.textContent = 'Please sign in first (Admin Login on the left).';
         err.hidden = false;
@@ -639,34 +809,49 @@
       }
       err.hidden = true;
       addBtn.disabled = true;
-      addBtn.textContent = 'Adding…';
+      addBtn.textContent = editing ? 'Saving…' : 'Adding…';
 
       var now = new Date();
-      var filename = fmtDate(now) + '-' + pad2(now.getHours()) + '-' + pad2(now.getMinutes()) + '-' + slugify(title) + '.md';
       var fmTags = parseTagsInput(tagsInput);
       var lines = ['---', 'title: ' + yamlQuote(title)];
       if (fmTags.length) { lines.push('tags: [' + fmTags.map(yamlQuote).join(', ') + ']'); }
       lines.push('updated: ' + yamlQuote(fmtUpdated(now)));
       lines.push('---', '', body, '');
+      var timeText = fmtDate(now) + ' ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes());
 
-      ghApi('PUT', '/repos/' + repo + '/contents/_post/' + encodeURIComponent(filename), token, {
-        message: 'Add post card: ' + title,
-        content: b64encode(lines.join('\n'))
-      })
+      var req;
+      if (editing) {
+        req = ghApi('PUT', '/repos/' + repo + '/contents/' + encodeURI(editing.path), token, {
+          message: 'Update post card: ' + title,
+          content: b64encode(lines.join('\n')),
+          sha: editing.sha
+        });
+      } else {
+        var filename = fmtDate(now) + '-' + pad2(now.getHours()) + '-' + pad2(now.getMinutes()) + '-' + slugify(title) + '.md';
+        req = ghApi('PUT', '/repos/' + repo + '/contents/_post/' + encodeURIComponent(filename), token, {
+          message: 'Add post card: ' + title,
+          content: b64encode(lines.join('\n'))
+        });
+      }
+
+      req
         .then(checkResponse)
         .then(function () {
           closeModal(editorModal);
-          var r = prependCard({
-            title: title,
-            tags: fmTags,
-            body: body,
-            path: '_post/' + filename,
-            timeText: fmtDate(now) + ' ' + pad2(now.getHours()) + ':' + pad2(now.getMinutes())
-          });
-          adjustTagCounts(r.keys, 1, r.disp);
-          document.getElementById('post-new-title').value = '';
-          document.getElementById('post-new-tags').value = '';
-          document.getElementById('post-new-body').value = '';
+          if (editing) {
+            updateCard(editing.card, { title: title, tags: fmTags, body: body, timeText: timeText });
+            editing = null;
+          } else {
+            var r = prependCard({
+              title: title,
+              tags: fmTags,
+              body: body,
+              path: '_post/' + filename,
+              timeText: timeText
+            });
+            adjustTagCounts(r.keys, 1, r.disp);
+            clearEditorFields();
+          }
         })
         .catch(function (e) {
           err.textContent = e.message || 'Network error — please retry.';
@@ -674,7 +859,7 @@
         })
         .then(function () {
           addBtn.disabled = false;
-          addBtn.textContent = 'Add card';
+          addBtn.textContent = editing ? 'Save' : 'Add card';
         });
     });
   }

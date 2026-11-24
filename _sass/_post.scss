@@ -306,9 +306,8 @@ $post-text: #1f2328;
 
 .post-card__titlerow {
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
-  gap: 12px;
+  gap: 8px;
 }
 
 .post-card__title {
@@ -519,7 +518,7 @@ body.post-full {
   position: relative;
   flex: none;
   display: none;
-  margin-left: 6px;
+  margin-left: auto;
 }
 
 body.post-admin .post-card__menu {
@@ -555,6 +554,29 @@ body.post-admin .post-card__menu {
 
 .post-card__dropdown[hidden] {
   display: none;
+}
+
+.post-card__edit {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: $post-text;
+  font-family: inherit;
+  font-size: 0.85em;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: $post-hover-bg;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
 }
 
 .post-card__delete {

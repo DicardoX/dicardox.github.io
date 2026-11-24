@@ -234,6 +234,7 @@
                     <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><circle cx="8" cy="3" r="1.6"/><circle cx="8" cy="8" r="1.6"/><circle cx="8" cy="13" r="1.6"/></svg>
                   </button>
                   <span class="post-card__dropdown" hidden>
+                    <button type="button" class="post-card__edit" data-path="{{ A_path[i] | escape }}">Edit</button>
                     <button type="button" class="post-card__delete" data-path="{{ A_path[i] | escape }}">Delete</button>
                   </span>
                 </span>
@@ -283,7 +284,7 @@
 <div class="post-modal" id="post-editor-modal" hidden>
   <div class="post-modal__overlay" data-close></div>
   <div class="post-modal__dialog post-modal__dialog--wide" role="dialog" aria-modal="true" aria-label="New card">
-    <h3 class="post-modal__title">New card</h3>
+    <h3 class="post-modal__title" id="post-editor-title">New card</h3>
     <div class="post-field">
       <label for="post-new-title">Title</label>
       <input id="post-new-title" type="text" placeholder="Card title">
@@ -294,7 +295,7 @@
     </div>
     <div class="post-field">
       <label for="post-new-body">Content <span class="post-field__opt">(Markdown)</span></label>
-      <textarea id="post-new-body" rows="9" placeholder="Write Markdown here… Inline #tags also work."></textarea>
+      <textarea id="post-new-body" rows="9" placeholder="Write Markdown here…"></textarea>
     </div>
     <p class="post-modal__hint">Saved as a Markdown file in <code>_post/</code> via the GitHub API; the site rebuilds in about a minute.</p>
     <p class="post-modal__error" id="post-editor-error" hidden></p>
